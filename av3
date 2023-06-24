@@ -1,0 +1,152 @@
+package av3;
+
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+public class JogoStop {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Digite o nome do jogador 1: ");
+        Jogador jogador1 = new Jogador(scanner.nextLine());
+
+        System.out.print("Digite o nome do jogador 2: ");
+        Jogador jogador2 = new Jogador(scanner.nextLine());
+
+        List<Categoria> categorias = new ArrayList<>();
+        categorias.add(new CategoriaSimples("Frutas"));
+        categorias.add(new CategoriaSimples("Animais"));
+        categorias.add(new CategoriaDupla("Cidades"));
+
+        System.out.print("Digite a letra escolhida: ");
+        String letra = scanner.nextLine().toLowerCase();
+
+        for (Categoria categoria : categorias) {
+            System.out.println("=== Rodada: " + categoria.getNome() + " ===");
+
+            System.out.print(jogador1.getNome() + ", digite uma palavra da categoria " + categoria.getNome() + ": ");
+            String palavraJogador1 = scanner.nextLine();
+            jogador1.adicionarResposta(categoria, palavraJogador1);
+
+            System.out.println();
+        }
+
+        for (Categoria categoria : categorias) {
+            System.out.println("=== Rodada: " + categoria.getNome() + " ===");
+
+            System.out.print(jogador2.getNome() + ", digite uma palavra da categoria " + categoria.getNome() + ": ");
+            String palavraJogador2 = scanner.nextLine();
+            jogador2.adicionarResposta(categoria, palavraJogador2);
+
+            System.out.println();
+        }
+
+        System.out.println("Pontuação:");
+        System.out.println(jogador1.getNome() + ": " + jogador1.pontuar(letra));
+        System.out.println(jogador2.getNome() + ": " + jogador2.pontuar(letra));
+
+        System.out.println("Fim do jogo!");
+    }
+}
+
+class Jogador {
+    private String nome;
+    private List<Resposta> respostas;
+
+    public Jogador(String nome) {
+        this.nome = nome;
+        this.respostas = new ArrayList<>();
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void adicionarResposta(Categoria categoria, String palavra) {
+        respostas.add(new Resposta(categoria, palavra));
+    }
+
+    public int pontuar(String letra) {
+        int pontuacao = 0;
+
+        for (Resposta resposta : respostas) {
+            if (resposta.getCategoria().verificarPalavra(resposta.getPalavra(), letra)) {
+                pontuacao += resposta.getCategoria().pontuar();
+            } else {
+                System.out.println("Jogador " + nome + ": Palavra com erro ortográfico na categoria " + resposta.getCategoria().getNome() + ". Não pontua!");
+            }
+        }
+
+        return pontuacao;
+    }
+}
+
+abstract class Categoria {
+    private String nome;
+
+    public Categoria(String nome) {
+        this.nome = nome;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public abstract boolean verificarPalavra(String palavra, String letra);
+
+    public abstract int pontuar();
+}
+
+class CategoriaSimples extends Categoria {
+    public CategoriaSimples(String nome) {
+        super(nome);
+    }
+
+    
+    public boolean verificarPalavra(String palavra, String letra) {
+       
+        return palavra.toLowerCase().startsWith(letra);
+    }
+
+    
+    public int pontuar() {
+        return 1;
+    }
+}
+
+class CategoriaDupla extends Categoria {
+    public CategoriaDupla(String nome) {
+        super(nome);
+    }
+
+    
+    public boolean verificarPalavra(String palavra, String letra) {
+        
+        return palavra.toLowerCase().startsWith(letra);
+    }
+
+    
+    public int pontuar() {
+        return 2;
+    }
+}
+
+class Resposta {
+    private Categoria categoria;
+    private String palavra;
+
+    public Resposta(Categoria categoria, String palavra) {
+        this.categoria = categoria;
+        this.palavra = palavra;
+    }
+
+    public Categoria getCategoria() {
+        return categoria;
+    }
+
+    public String getPalavra() {
+        return palavra;
+    }
+}
